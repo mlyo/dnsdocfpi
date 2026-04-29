@@ -1,3 +1,8 @@
 HK香港
 JP日本
 TW台湾
+KR韩国
+SG新加波
+US美国
+DE德国
+CA加拿大
