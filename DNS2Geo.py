@@ -364,19 +364,16 @@ def run_cloudflarescanner_with_dn():
     ip_count = count_non_empty_lines(SCANNER_IP_FILE)
 
     if ip_count == 0:
-        print(f"{SCANNER_IP_FILE} 为空，跳过 CloudflareScanner。")
-        return False
-
-    remove_file_if_exists(SCANNER_RESULT_CSV)
+        print(f"{SCANNER_IP_FILE}        SV)
 
     try:
         subprocess.run(
-            [SCANNER_EXE, "-dn", str(ip_count)],
+            [".\\CloudflareScanner.exe", "-dn", str(ip_count)],
             cwd=SCANNER_DIR,
             check=True
         )
 
-        print(f"已运行 {SCANNER_EXE} -dn {ip_count}")
+        print(f"已运行 CloudflareScanner.exe -dn {ip_count}")
         return True
     except subprocess.CalledProcessError as e:
         print(f"运行 {SCANNER_EXE_PATH} 失败，退出码: {e.returncode}")
