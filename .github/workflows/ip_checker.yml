@@ -15,9 +15,18 @@ concurrency:
 
 jobs:
   check-ips:
-    runs-on:-latest
+    runs-on: windows-latest
 
-: dependencies
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
