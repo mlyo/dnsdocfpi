@@ -18,9 +18,17 @@ MIN_DOWNLOAD_SPEED = 5.0
 
 SCANNER_DIR = "CloudflareScanner"
 SCANNER_EXE = "CloudflareScanner.exe"
-SCANNER_EXE_PATH = os.path.join(SCANNER_DIR, SC):
-)
+SCANNER_EXE_PATH = os.path.join(SCANNER_DIR, SCANNER_EXE)
+SCANNER_IP_FILE = os.path.join(SCANNER_DIR, "ip.txt")
+SCANNER_RESULT_CSV = os.path.join(SCANNER_DIR, "result.csv")
 
+REQUIRED_RESULT_COLUMNS = ("IP Address", "Download Speed (MB/s)")
+
+
+def ensure_parent_dir(file_path):
+    directory = os.path.dirname(file_path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
 
 def clean_config_line(line):
     return line.split('#', 1)[0].strip()
