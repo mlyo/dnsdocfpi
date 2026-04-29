@@ -3,7 +3,7 @@ name: IP Checker
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '0 */12 * * *'
 
 permissions:
   contents: write
@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,30 +34,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install dnspython requests
 
-      - name: List directory contents before
-        shell: pwsh
-        run: |
-          Get-ChildItem
-          if (Test-Path "CloudflareScanner") {
-            Get-ChildItem "CloudflareScanner"
-          } else {
-            Write-Host "CloudflareScanner 目录不存在"
-          }
-
       - name: Run IP checker script
         shell: pwsh
         run: |
           python DNS2Geo.py
-
-      - name: List directory contents after
-        shell: pwsh
-        run: |
-          Get-ChildItem
-          if (Test-Path "CloudflareScanner") {
-            Get-ChildItem "CloudflareScanner"
-          } else {
-            Write-Host "CloudflareScanner 目录不存在"
-          }
 
       - name: Commit and push results
         uses: stefanzweifel/git-auto-commit-action@v5
