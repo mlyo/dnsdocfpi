@@ -1,5 +1,7 @@
 import sys
-sys.stdout.reconfigure(encoding='utf-8')
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 import csv
 import ipaddress
@@ -15,17 +17,9 @@ import requests
 MIN_DOWNLOAD_SPEED = 5.0
 
 SCANNER_DIR = "CloudflareScanner"
-.join(SCANNER_DIR, SCANNER_EXE)
-SCANNER_IP_FILE = os.path.join(SCANNER_DIR, "ip.txt")
-SCANNER_RESULT_CSV = os.path.join(SCANNER_DIR, "result.csv")
-
-REQUIRED_RESULT_COLUMNS = ("IP Address", "Download Speed (MB/s)")
-
-
-def ensure_parent_dir(file_path):
-    directory = os.path.dirname(file_path)
-    if directory:
-        os.makedirs(directory, exist_ok=True)
+SCANNER_EXE = "CloudflareScanner.exe"
+SCANNER_EXE_PATH = os.path.join(SCANNER_DIR, SC):
+)
 
 
 def clean_config_line(line):
@@ -114,6 +108,7 @@ def collect_all_ips(manual_ip_file, domains_file, output_file):
         with open(manual_ip_file, 'r', encoding='utf-8') as f:
             for line in f:
                 ip = clean_config_line(line)
+
                 if not ip:
                     continue
 
@@ -157,13 +152,15 @@ def detect_all_ip_country(input_file, output_file, country_mapping):
         for line in f:
             line = line.strip()
 
-            if '#' in line:
-                ip, info = line.split('#', 1)
-                ip = ip.strip()
-                info = info.strip()
+            if '#' not in line:
+                continue
 
-                if ip:
-                    ip_info[ip] = info
+            ip, info = line.split('#', 1)
+            ip = ip.strip()
+            info = info.strip()
+
+            if ip:
+                ip_info[ip] = info
 
     for ip, info in ip_info.items():
         if info == "未检测":
@@ -181,14 +178,19 @@ def detect_all_ip_country(input_file, output_file, country_mapping):
 
 def extract_ips_from_file(input_file, output_file):
     try:
-        with open(input_file, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+        ips = set()
 
-        ips = {
-            line.strip().split('#', 1)[0].strip()
-            for line in lines
-            if '#' in line and line.strip().split('#', 1)[0].strip()
-        }
+        with open(input_file, 'r', encoding='utf-8') as file:
+            for line in file:
+                line = line.strip()
+
+                if '#' not in line:
+                    continue
+
+                ip = line.split('#', 1)[0].strip()
+
+                if ip:
+                    ips.add(ip)
 
         ensure_parent_dir(output_file)
 
@@ -219,6 +221,7 @@ def filter_ips_by_allowed_countries(
         with open(allowed_countries_file, 'r', encoding='utf-8') as f:
             for line in f:
                 country = clean_config_line(line).replace(" ", "")
+
                 if country:
                     allowed.add(country)
 
@@ -458,6 +461,8 @@ def process_result_csv(
 
     valid_infos.sort(key=lambda item: item['speed'], reverse=True)
 
+    ensure_parent_dir(proxyip_file)
+
     with open(proxyip_file, 'w', encoding='utf-8') as outfile:
         for info in valid_infos:
             outfile.write(info['ip'] + '\n')
@@ -481,6 +486,8 @@ def process_result_csv(
             time.sleep(1)
 
         return 'Unknown'
+
+    ensure_parent_dir(with_country_file)
 
     with open(with_country_file, 'w', encoding='utf-8') as outfile:
         for info in valid_infos:
@@ -564,7 +571,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     process_result_csv(
-        input_file=SCANNER_RESULT_C       ipip               RETRY=10
+        input_file=SCANNER_RESULT_CSV,
+        proxyip_file='proxyip.txt',
+        with_country_file='proxyip_with_country.txt',
+        countries_file='countries.txt',
+        RETRY=10
     )
 
     try:
