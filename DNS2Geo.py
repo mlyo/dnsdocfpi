@@ -353,35 +353,51 @@ def count_non_empty_lines(file_path):
 
 
 def run_cloudflarescanner_with_dn():
-    if not os.path.isfile(SCANNER_EXE_PATH):
-        print(f"未找到 {SCANNER_EXE_PATH}")
+    scanner_dir = os.path.abspath(SCANNER_DIR)
+    exe_path = os.path.abspath(SCANNER_EXE_PATH)
+    ip_txt_path = os.path.abspath(SCANNER_IP_FILE)
+    result_csv_path = os.path.abspath(SCANNER_RESULT_CSV)
+
+    print(f"CloudflareScanner目录: {scanner_dir}")
+    print(f"CloudflareScanner程序: {exe_path}")
+    print(f"CloudflareScanner输入: {ip_txt_path}")
+
+    if not os.path.isdir(scanner_dir):
+        print(f"未找到目录 {scanner_dir}")
         sys.exit(1)
 
-    if not os.path.isfile(SCANNER_IP_FILE):
-        print(f"未找到 {SCANNER_IP_FILE}")
+    if not os.path.isfile(exe_path):
+        print(f"未找到 {exe_path}")
+        print("CloudflareScanner目录内容:")
+        for name in os.listdir(scanner_dir):
+            print("  ", name)
         sys.exit(1)
 
-    ip_count = count_non_empty_lines(SCANNER_IP_FILE)
+    if not os.path.isfile(ip_txt_path):
+        print(f"未找到 {ip_txt_path}")
+        sys.exit(1)
+
+    ip_count = count_non_empty_lines(ip_txt_path)
 
     if ip_count == 0:
-        print(f"{SCANNER_IP_FILE} 为空，跳过 CloudflareScanner。")
+        print(f"{ip_txt_path} 为空，跳过 CloudflareScanner。")
         return False
 
-    remove_file_if_exists(SCANNER_RESULT_CSV)
+    remove_file_if_exists(result_csv_path)
 
     try:
         subprocess.run(
-            [".\\CloudflareScanner.exe", "-dn", str(ip_count)],
-            cwd=SCANNER_DIR,
+            [exe_path, "-dn", str(ip_count)],
+            cwd=scanner_dir,
             check=True
         )
-        print(f"已运行 CloudflareScanner.exe -dn {ip_count}")
+        print(f"已运行 {exe_path} -dn {ip_count}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"运行 {SCANNER_EXE_PATH} 失败，退出码: {e.returncode}")
+        print(f"运行 {exe_path} 失败，退出码: {e.returncode}")
         sys.exit(1)
     except Exception as e:
-        print(f"运行 {SCANNER_EXE_PATH} 时发生错误: {e}")
+        print(f"运行 {exe_path} 时发生错误: {e}")
         sys.exit(1)
 
 def wait_for_result_csv(result_csv_path, timeout=600, interval=2):
